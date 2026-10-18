@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-brand: var(--brand, #4f46e5);
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  @apply bg-slate-50 text-slate-900 antialiased;
+}

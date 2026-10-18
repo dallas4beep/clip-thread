@@ -147,3 +147,10 @@ vite.config.ts.timestamp-*
 
 # Turbo Repo
 .turbo
+
+# Clipthread
+.venv/
+__pycache__/
+.pytest_cache/
+.env*.local
+.wrangler/

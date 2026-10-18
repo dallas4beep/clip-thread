@@ -1,0 +1,12 @@
+{
+  "name": "clipthread-r2-event-forwarder",
+  "private": true,
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260901.0",
+    "wrangler": "^4.0.0"
+  }
+}

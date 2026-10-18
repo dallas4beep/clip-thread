@@ -1,0 +1,3 @@
+# Optional: run Whisper locally instead of the OpenAI API (TRANSCRIBE_BACKEND=local).
+-r requirements.txt
+faster-whisper>=1.1

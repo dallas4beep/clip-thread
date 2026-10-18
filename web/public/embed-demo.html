@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Video wall embed demo</title>
+    <style>
+      body { font-family: system-ui, sans-serif; max-width: 1100px; margin: 0 auto; padding: 32px 16px; background: #f8fafc; color: #0f172a; }
+      code, pre { background: #e2e8f0; border-radius: 6px; }
+      pre { padding: 12px; overflow-x: auto; }
+      section { margin: 40px 0; }
+    </style>
+  </head>
+  <body>
+    <h1>Embed demo</h1>
+    <p>Paste either snippet into any website. Change the wall with <code>?wall=slug</code>.</p>
+    <pre>&lt;div data-clipthread-wall="customer-stories"&gt;&lt;/div&gt;
+&lt;script src="https://YOUR_APP/embed.js" async&gt;&lt;/script&gt;</pre>
+
+    <section>
+      <h2>Grid</h2>
+      <div id="grid" data-clipthread-wall="customer-stories" data-limit="12"></div>
+    </section>
+
+    <section>
+      <h2>Carousel, custom branding</h2>
+      <div id="carousel" data-clipthread-wall="customer-stories" data-layout="carousel" data-primary-color="#e11d48" data-radius="4" data-title="none"></div>
+    </section>
+
+    <script>
+      var wall = new URLSearchParams(location.search).get("wall");
+      if (wall) document.querySelectorAll("[data-clipthread-wall]").forEach(function (n) { n.dataset.clipthreadWall = wall; });
+    </script>
+    <script src="/embed.js" async></script>
+  </body>
+</html>

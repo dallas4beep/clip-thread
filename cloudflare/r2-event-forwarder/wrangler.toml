@@ -1,0 +1,14 @@
+name = "clipthread-r2-event-forwarder"
+main = "src/index.ts"
+compatibility_date = "2026-09-01"
+
+[vars]
+PROCESSOR_URL = "https://processor.example.com"
+# Secret: npx wrangler secret put PROCESSOR_WEBHOOK_SECRET
+
+[[queues.consumers]]
+queue = "clipthread-r2-events"
+max_batch_size = 10
+max_batch_timeout = 5
+max_retries = 10
+dead_letter_queue = "clipthread-r2-events-dlq"
