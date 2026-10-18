@@ -186,6 +186,22 @@ npm run deploy                     # set PROCESSOR_URL in wrangler.toml first
 ```
 If you rely only on storage events, leave `PROCESSOR_URL` empty in the web app.
 
+## Deploying to Vercel (services)
+
+`vercel.json` deploys both apps as one Vercel project:
+
+| Service | Root | Runtime | Public? |
+|---|---|---|---|
+| `web` | `web/` | Next.js | Yes, all paths (`/(.*)`) |
+| `worker` | `worker/` | Container (`worker/Dockerfile`, includes FFmpeg) | No, internal only |
+
+- `web` reaches `worker` through a **service binding**, which injects the worker's internal URL as `PROCESSOR_URL`. Don't set `PROCESSOR_URL` yourself on Vercel.
+- On Vercel the worker runs with `PROCESS_INLINE` on (automatic when `VERCEL` is set). Each video is processed inside the webhook request instead of a background queue, because an instance may stop once it has responded. `/api/submissions/[id]/finalize` makes that call from `after()`, with `maxDuration = 300`.
+- **Recovery:** `GET /api/cron/process-pending` (protected by `CRON_SECRET`) calls the worker's `/jobs/sweep`. It resets stuck jobs and processes any upload whose webhook was missed. Point a Vercel Cron at it. Hobby plans only allow daily crons.
+- **Environment variables:** set the `web` ones from `web/.env.example` and the `worker` ones from `worker/.env.example` (Supabase, R2, secrets, Whisper) in the Vercel project.
+- **Local testing:** `vercel dev` runs both services and injects the binding.
+- The optional Cloudflare forwarder needs a **public** worker URL, so it doesn't work while the worker is internal-only. Either rely on the binding plus the cron, or add a public rewrite such as `/processor/(.*)` with a `request.path` transform, and set the forwarder's `PROCESSOR_URL` to `https://<domain>/processor/`.
+
 ## Production notes and limits
 - **Rate limiting.** `/api/submissions` and `/api/uploads/*` should sit behind a rate limiter, such as Cloudflare WAF rules or Upstash. They don't have one built in.
 - **Worker scaling.** The queue lives inside the process (`worker/app/jobs.py`). Correctness comes from the claim in the database, so several replicas won't double-process a video. They would, however, each run the startup sweep. For real fan-out, swap the queue for Arq, Celery or Cloudflare Queues.

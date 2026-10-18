@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { z } from "zod";
 import { HttpError, jsonError } from "@/lib/http";
 import { manifestKey } from "@/lib/keys";
@@ -8,6 +8,10 @@ import { requireUser } from "@/lib/server/auth";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
+// The processor stitches + transcribes before answering (inline mode on
+// Vercel); after() keeps this function alive for that call once the browser
+// already has its response.
+export const maxDuration = 300;
 
 /**
  * Marks a submission as fully uploaded and hands it to the processor.
@@ -55,7 +59,7 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
       .maybeSingle();
     if (upErr) throw upErr;
 
-    await notifyProcessor({ type: "video.uploaded", videoId: id });
+    after(() => notifyProcessor({ type: "video.uploaded", videoId: id }, (maxDuration - 10) * 1000));
     return NextResponse.json({ status: updated?.status ?? "uploaded" });
   } catch (err) {
     return jsonError(err);

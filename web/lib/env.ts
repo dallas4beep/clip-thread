@@ -15,7 +15,10 @@ const schema = z.object({
   R2_ENDPOINT: z.string().url().optional().or(z.literal("").transform(() => undefined)),
   CONSENT_SIGNING_SECRET: hexSecret,
   PROCESSOR_WEBHOOK_SECRET: hexSecret,
+  // Injected at runtime by the `worker` service binding on Vercel (vercel.json); set manually elsewhere.
   PROCESSOR_URL: z.string().url().optional().or(z.literal("").transform(() => undefined)),
+  // Vercel sends `Authorization: Bearer $CRON_SECRET` to cron routes.
+  CRON_SECRET: z.string().min(16).optional().or(z.literal("").transform(() => undefined)),
 });
 
 export type ServerEnv = z.infer<typeof schema>;

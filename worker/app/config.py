@@ -1,3 +1,4 @@
+import os
 from functools import lru_cache
 from typing import Literal
 
@@ -29,6 +30,12 @@ class Settings(BaseSettings):
     transcribe_language: str | None = None  # None = auto-detect
 
     worker_concurrency: int = 2
+    # Process each video inside the webhook request instead of an in-memory
+    # queue. Required on Vercel, where an instance may be frozen or stopped
+    # once it has responded. Defaults on when running on Vercel.
+    process_inline: bool = Field(default_factory=lambda: bool(os.environ.get("VERCEL")))
+    # Max videos one /jobs/sweep call processes in inline mode (bounded by function duration).
+    sweep_batch_size: int = 1
     keep_source_segments: bool = True
     stale_processing_minutes: int = 30
     ffmpeg_bin: str = "ffmpeg"

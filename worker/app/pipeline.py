@@ -23,11 +23,12 @@ class Pipeline:
         self.ffmpeg = ffmpeg
         self.transcriber = transcriber
 
-    def process(self, video_id: str) -> None:
+    def process(self, video_id: str) -> str:
+        """Returns the outcome: "skipped", "pending_review" or "failed"."""
         video = self.db.claim(video_id)
         if video is None:
             log.info("video %s not claimable (already processed or in progress)", video_id)
-            return
+            return "skipped"
         log.info("processing video %s", video_id)
         prefix = video["source_prefix"]
         try:
@@ -40,9 +41,11 @@ class Pipeline:
                 **result,
             )
             log.info("video %s ready for review", video_id)
+            return "pending_review"
         except Exception as exc:  # noqa: BLE001 — any failure must land in the DB, not just the log
             log.exception("video %s failed", video_id)
             self.db.update_video(video_id, status="failed", processing_error=f"{type(exc).__name__}: {exc}"[:2000])
+            return "failed"
 
     def _run(self, video_id: str, prefix: str, work: Path) -> dict:
         segments = self.db.segments(video_id)

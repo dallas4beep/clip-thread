@@ -13,8 +13,9 @@ COPY app ./app
 RUN useradd --system --uid 10001 worker
 USER worker
 
-ENV PYTHONUNBUFFERED=1
+ENV PYTHONUNBUFFERED=1 PORT=8000
 EXPOSE 8000
-HEALTHCHECK --interval=30s --timeout=5s CMD python -c "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/healthz').status==200 else 1)"
-# One process: the in-memory queue + startup sweep assume a single worker per container.
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]
+HEALTHCHECK --interval=30s --timeout=5s CMD python -c "import os,urllib.request,sys; sys.exit(0 if urllib.request.urlopen(f'http://127.0.0.1:{os.environ[\"PORT\"]}/healthz').status==200 else 1)"
+# Vercel container functions route traffic to $PORT. One process: the queue
+# (non-inline mode) and startup sweep assume a single worker per container.
+CMD ["sh", "-c", "exec uvicorn app.main:app --host 0.0.0.0 --port \"$PORT\" --workers 1"]

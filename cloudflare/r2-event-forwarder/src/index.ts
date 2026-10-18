@@ -28,7 +28,8 @@ export default {
       const body = JSON.stringify(msg.body);
       const timestamp = Math.floor(Date.now() / 1000).toString();
       try {
-        const res = await fetch(new URL("/webhooks/storage-event", env.PROCESSOR_URL), {
+        const base = env.PROCESSOR_URL.endsWith("/") ? env.PROCESSOR_URL : `${env.PROCESSOR_URL}/`;
+        const res = await fetch(new URL("webhooks/storage-event", base), {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
