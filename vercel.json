@@ -5,7 +5,12 @@
       "root": "web",
       "framework": "nextjs",
       "bindings": [
-        { "type": "service", "service": "worker", "format": "url", "env": "PROCESSOR_URL" }
+        {
+          "type": "service",
+          "service": "worker",
+          "format": "url",
+          "env": "PROCESSOR_URL"
+        }
       ]
     },
     "worker": {
@@ -15,6 +20,17 @@
     }
   },
   "rewrites": [
-    { "source": "/(.*)", "destination": { "service": "web" } }
+    {
+      "source": "/(.*)",
+      "destination": {
+        "service": "web"
+      }
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron/process-pending",
+      "schedule": "17 4 * * *"
+    }
   ]
 }
